@@ -2,7 +2,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
 
 import java.io.IOException;
@@ -35,11 +34,11 @@ public class ConsumerThread implements Runnable {
             Channel finalChannel = channel;
             DeliverCallback deliverCallback = (consumerTag, delivery) -> {
                 String message = new String(delivery.getBody(), "UTF-8");
-//                System.out.println(" [x] Received '" + message + "'");
+                System.out.println(" [x] Received '" + message + "'");
                 try {
                     processMessage(message);
                 } finally {
-//                    System.out.println(" [x] Done");
+                    System.out.println(" [x] Done");
                     finalChannel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                 }
             };

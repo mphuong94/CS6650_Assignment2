@@ -1,5 +1,10 @@
 package utils;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Abstract class that has common work between 2 parts
  */
@@ -150,6 +155,7 @@ public abstract class ClientAbstract {
         this.phase1.completed();
         this.phase2.completed();
         this.phase3.completed();
+
         long endTime = System.currentTimeMillis();
         this.wallTime = endTime - startTime;
         System.out.println("All phases done");

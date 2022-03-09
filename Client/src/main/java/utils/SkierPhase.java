@@ -126,6 +126,7 @@ public class SkierPhase implements Runnable {
             };
             new Thread(thread).start();
         }
+
     }
 
     public void isNextReady() {

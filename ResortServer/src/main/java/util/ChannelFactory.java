@@ -5,11 +5,6 @@ import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.DestroyMode;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
-import org.apache.commons.pool2.impl.GenericObjectPool;
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-
-import java.io.IOException;
-import java.util.concurrent.TimeoutException;
 
 public class ChannelFactory extends BasePooledObjectFactory<Channel> {
     private final Connection connection;

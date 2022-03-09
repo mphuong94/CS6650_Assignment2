@@ -93,7 +93,7 @@ public class SkierServlet extends HttpServlet {
             Channel channel = pool.borrowObject();
             String jsonString = gson.toJson(newInfo);
             channel.queueDeclare(QUEUE_NAME, true, false, false, null);
-            channel.basicPublish("", QUEUE_NAME, null, jsonString.getBytes(StandardCharsets.UTF_8));
+            channel.basicPublish("", QUEUE_NAME, null, jsonString.getBytes("UTF-8"));
             pool.returnObject(channel);
             response.setStatus(HttpServletResponse.SC_CREATED);
             response.getWriter().write("It works post!");

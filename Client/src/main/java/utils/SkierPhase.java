@@ -56,7 +56,7 @@ public class SkierPhase implements Runnable {
         this.isComplete = new CountDownLatch(this.totalCalls);
         PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
         connManager.setMaxTotal(20000);
-        connManager.setDefaultMaxPerRoute(1000);
+        connManager.setDefaultMaxPerRoute(10000);
         CloseableHttpClient httpClient = HttpClients.custom()
                 .setConnectionManager(connManager)
                 .setServiceUnavailableRetryStrategy(new RetryStrategy())

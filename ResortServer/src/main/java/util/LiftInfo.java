@@ -1,3 +1,5 @@
+package util;
+
 public class LiftInfo {
     private Integer skierId;
     private Integer liftId;
@@ -45,7 +47,7 @@ public class LiftInfo {
 
     @Override
     public String toString() {
-        return "LiftInfo{" +
+        return "util.LiftInfo{" +
                 "skierId=" + skierId +
                 ", liftId=" + liftId +
                 ", minute=" + minute +

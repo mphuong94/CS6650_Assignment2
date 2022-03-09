@@ -21,4 +21,3 @@
 
 
 
---numThread 32 --numSkiers 100 --numLifts 40 --numRuns 10 --url http://localhost:8080/Server_war_exploded/skiers --part 1

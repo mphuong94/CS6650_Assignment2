@@ -3,19 +3,20 @@ import com.google.gson.GsonBuilder;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.DeliverCallback;
-
-import java.io.IOException;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import util.LiftInfo;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ConcurrentHashMap;
+
 public class ConsumerThread implements Runnable {
-    private final ConcurrentLinkedQueue<LiftInfo> liftInfos;
+    private static final String QUEUE_NAME = "postRequest";
+    private final ConcurrentHashMap<Integer, util.LiftInfo> liftInfos;
     private final Connection connection;
-    private static String QUEUE_NAME = "postRequest";
     private final GsonBuilder builder;
     private final Gson gson;
 
-    public ConsumerThread(ConcurrentLinkedQueue<LiftInfo> liftInfos, Connection connection) {
+    public ConsumerThread(ConcurrentHashMap<Integer, util.LiftInfo> liftInfos, Connection connection) {
         this.liftInfos = liftInfos;
         this.connection = connection;
         this.builder = new GsonBuilder();
@@ -33,7 +34,7 @@ public class ConsumerThread implements Runnable {
             channel.basicQos(1); // accept only one unack-ed message at a time
             Channel finalChannel = channel;
             DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-                String message = new String(delivery.getBody(), "UTF-8");
+                String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
                 System.out.println(" [x] Received '" + message + "'");
                 try {
                     processMessage(message);
@@ -43,7 +44,8 @@ public class ConsumerThread implements Runnable {
                 }
             };
             boolean autoAck = false;
-            channel.basicConsume(QUEUE_NAME, autoAck, deliverCallback, consumerTag -> { });
+            channel.basicConsume(QUEUE_NAME, autoAck, deliverCallback, consumerTag -> {
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -51,9 +53,9 @@ public class ConsumerThread implements Runnable {
 
     }
 
-    void processMessage(String message){
+    void processMessage(String message) {
         LiftInfo receivedInfo = gson.fromJson(message, LiftInfo.class);
-        this.liftInfos.add(receivedInfo);
+        this.liftInfos.put(receivedInfo.getSkierId(), receivedInfo);
     }
 
 }

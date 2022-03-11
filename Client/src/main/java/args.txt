@@ -21,4 +21,3 @@
 --numThread 256 --numSkiers 20000 --numLifts 40 --numRuns 10 --url http://LB-1463899760.us-west-2.elb.amazonaws.com:8080/ResortServer_war/skiers/ --part 2
 
 
-

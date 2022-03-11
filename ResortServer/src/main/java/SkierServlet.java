@@ -14,7 +14,10 @@ import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @WebServlet(name = "SkierServlet", value = "/SkierServlet")
 public class SkierServlet extends HttpServlet {
@@ -23,6 +26,7 @@ public class SkierServlet extends HttpServlet {
     public GsonBuilder builder;
     public Gson gson;
     private static String QUEUE_NAME = "postRequest";
+    final static Logger logger = Logger.getLogger(SkierServlet.class.getName());
 
     @Override
     public void init() {
@@ -63,7 +67,7 @@ public class SkierServlet extends HttpServlet {
         // and now validate url path and return the response status code
         // (and maybe also some value if input is valid)
 
-        if (!isUrlValid(urlParts)) {
+        if (!validateGet(urlParts)) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         } else {
             response.setStatus(HttpServletResponse.SC_OK);
@@ -82,32 +86,73 @@ public class SkierServlet extends HttpServlet {
             response.getWriter().write("missing parameters");
             return;
         }
-
-//        logger.log(Level.INFO, request.getParameter("skier_id"));
-        int skierId = Integer.parseInt(request.getParameter("skier_id"));
-        int liftId = Integer.parseInt(request.getParameter("lift_id"));
-        int minute = Integer.parseInt(request.getParameter("minute"));
-        int waitTime = Integer.parseInt(request.getParameter("wait"));
-        LiftInfo newInfo = new LiftInfo(skierId,liftId,minute,waitTime);
-        try {
-            Channel channel = pool.borrowObject();
-            String jsonString = gson.toJson(newInfo);
-            channel.queueDeclare(QUEUE_NAME, true, false, false, null);
-            channel.basicPublish("", QUEUE_NAME, null, jsonString.getBytes("UTF-8"));
-            pool.returnObject(channel);
-            response.setStatus(HttpServletResponse.SC_CREATED);
-            response.getWriter().write("It works post!");
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (!validatePost(request)) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        } else {
+            logger.log(Level.INFO, request.getParameter("skier_id"));
+            int skierId = Integer.parseInt(request.getParameter("skier_id"));
+            int liftId = Integer.parseInt(request.getParameter("lift_id"));
+            int minute = Integer.parseInt(request.getParameter("minute"));
+            int waitTime = Integer.parseInt(request.getParameter("wait"));
+            LiftInfo newInfo = new LiftInfo(skierId,liftId,minute,waitTime);
+            try {
+                Channel channel = pool.borrowObject();
+                String jsonString = gson.toJson(newInfo);
+                channel.queueDeclare(QUEUE_NAME, true, false, false, null);
+                channel.basicPublish("", QUEUE_NAME, null, jsonString.getBytes("UTF-8"));
+                pool.returnObject(channel);
+                response.setStatus(HttpServletResponse.SC_CREATED);
+                response.getWriter().write("It works post!");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    private boolean isUrlValid(String[] urlPath) {
+    private boolean validateGet(String[] urlPath) {
         // urlPath  = "/1/seasons/2019/day/1/skier/123"
         // urlParts = [, 1, seasons, 2019, day, 1, skier, 123]
         if (urlPath.length == 8){
             return true;
         }
         return false;
+    }
+
+    private boolean validatePost(HttpServletRequest request) {
+//        logger.log(Level.INFO, request.getParameter("skiers_ids"));
+        Map paramsSupplied = request.getParameterMap();
+        if (paramsSupplied.containsKey("skier_id")){
+            if (Integer.parseInt(request.getParameter("skier_id")) > 100000){
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+        if (paramsSupplied.containsKey("lift_id")){
+            if (Integer.parseInt(request.getParameter("lift_id")) > 60){
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+        if (paramsSupplied.containsKey("minute")){
+            if (Integer.parseInt(request.getParameter("minute")) > 420){
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+        if (paramsSupplied.containsKey("wait")){
+            if (Integer.parseInt(request.getParameter("wait")) > 10){
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
+        return true;
     }
 }

@@ -55,8 +55,8 @@ public class SkierPhase implements Runnable {
         this.totalCalls = this.numThreads * this.numRequestToSend;
         this.isComplete = new CountDownLatch(this.totalCalls);
         PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
-        connManager.setMaxTotal(20000);
-        connManager.setDefaultMaxPerRoute(10000);
+        connManager.setMaxTotal(50000);
+        connManager.setDefaultMaxPerRoute(20000);
         CloseableHttpClient httpClient = HttpClients.custom()
                 .setConnectionManager(connManager)
                 .setServiceUnavailableRetryStrategy(new RetryStrategy())
@@ -95,7 +95,7 @@ public class SkierPhase implements Runnable {
             int rangeChunk = (int) Math.ceil(this.numSkiers/this.range);
             int startRange = i * rangeChunk;
             int skierID = random.nextInt(rangeChunk) + startRange + 1;
-            int liftID = Math.abs(random.nextInt());
+            int liftID = Math.abs(random.nextInt(this.numLifts));
             int time = random.nextInt(this.endTime - this.startTime + 1) + this.startTime;
             int waitTime = random.nextInt(WAIT_TIME_MAX);
 

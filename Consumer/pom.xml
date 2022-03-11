@@ -27,5 +27,5 @@
             <version>2.9.0</version>
         </dependency>
     </dependencies>
-
+    <packaging>jar</packaging>
 </project>
